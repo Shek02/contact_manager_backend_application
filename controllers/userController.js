@@ -46,7 +46,7 @@ const userRegister = asyncHandler(async (req, res) => {
 });
 
 // @desc get all contact
-// @route Get /user/login
+// @route POSTE /user/login
 // @public
 const userLogin = asyncHandler(async (req, res) => {
 
@@ -69,7 +69,7 @@ const userLogin = asyncHandler(async (req, res) => {
             }
         }, process.env.ACCESS_TOKEN,
             {
-                expiresIn: "1m"
+                expiresIn: "40m"
             })
         res.status(200).json({ accessToken })
     }else{
@@ -85,9 +85,7 @@ const userLogin = asyncHandler(async (req, res) => {
 // @route Get /user/current
 // @public
 const userCurrent = asyncHandler(async (req, res) => {
-    res.json({
-        massage: "currentuser info"
-    });
+    res.json(req.user);
 
 });
 

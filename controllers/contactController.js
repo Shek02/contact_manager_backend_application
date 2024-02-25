@@ -4,9 +4,9 @@ const Contact = require("../models/contactModel");
 
 // @desc get all contact
 // @route Get /contact
-// @public
+// @private
 const getContact = asyncHandler(async (req, res) => {
-    const contacts = await Contact.find() ;
+    const contacts = await Contact.find({user_id: req.user.id}) ;
     if(!contacts){
         res.status(404);
         throw new Error('contact non found')
@@ -18,7 +18,7 @@ const getContact = asyncHandler(async (req, res) => {
 
 // @desc get all contact
 // @route Get /contact/:id
-// @public
+// @private
 const getContactByid = asyncHandler(async (req, res) => {
 
     const contacts = await Contact.findById(req.params.id) ;
@@ -34,32 +34,39 @@ const getContactByid = asyncHandler(async (req, res) => {
 
 // @desc get all contact
 // @route POST /contact
-// @public
+// @private
 const postContact = asyncHandler(async (req, res) => {
     const { name, email, phone } = req.body;
+
+
     if (!name || !email || !phone) {
         res.status(400);
         throw new Error("all filse are mendetory !")
     }
+    
 
     const contact = await Contact.create({
         name,
         email,
         phone,
+        user_id: req.user.id,
     })
-    console.log(req.body);
     res.status(200).json(contact)
 });
 
 
 // @desc get all contact
 // @route PUT /contact/update/:id
-// @public
+// @private
 const updateContact = asyncHandler(async (req, res) => {
     const contacts = await Contact.findById(req.params.id) ;
     if(!contacts){
         res.status(404);
         throw new Error('contact non found')
+    }
+    if(contacts.user_id.toString() !== req.user.id){
+        res.status(403);
+        throw new Error("User can nat update dis contact")
     }
 
 
@@ -72,13 +79,18 @@ const updateContact = asyncHandler(async (req, res) => {
 
 // @desc get all contact
 // @route DELETE /contact/delete/:id
-// @public
+// @private
 const deleteContact = asyncHandler(async (req, res) => {
 
     const contacts = await Contact.findByIdAndDelete(req.params.id) ;
     if(!contacts){
         res.status(404);
         throw new Error('contact non found')
+    }
+    
+    if(contacts.user_id.toString() !== req.user.id){
+        res.status(403);
+        throw new Error("User can nat delete dis contact")
     }
     res.status(200)
         .json({massage: "contact has been deleted"})
